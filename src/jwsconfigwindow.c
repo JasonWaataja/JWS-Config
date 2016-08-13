@@ -1444,7 +1444,7 @@ jws_config_window_set_info_from_gui (JwsConfigWindow *win)
   
   jws_info_set_rotate_image (priv->current_info, rotate_image);
   jws_info_set_rotate_seconds (priv->current_info, rotate_seconds);
-  jws_info_set_randomize_order (priv->current_info, rotate_seconds);
+  jws_info_set_randomize_order (priv->current_info, randomize_order);
   jws_info_set_file_list (priv->current_info, file_list);
 }
 
