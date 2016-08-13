@@ -14,8 +14,8 @@ The main dependency is GTK+. On Arch Linux, install `base-devel`, `gtk3`, and
 platform so let me know and I'll add some.
 
 Once you have the dependencies, you should be able to build it like a normal
-autotools project. Run `cd JWS-Config`, `./autogeh.sh`, `make`, and
-`make install`. You might need sudo for the last one.
+autotools project. Run `cd JWS-Config`, `./autogeh.sh`, `./configure`, `make`,
+and `make install`. You might need sudo for the last one.
 
 ##Usage
 As of yet, there is no desktop entry as I am currently waiting on an icon. In
