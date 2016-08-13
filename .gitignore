@@ -31,3 +31,23 @@
 # Debug files
 *.dSYM/
 *.su
+
+# http://www.gnu.org/software/automake
+
+Makefile
+Makefile.in
+
+# http://www.gnu.org/software/autoconf
+
+/autom4te.cache
+/autoscan.log
+/autoscan-*.log
+/aclocal.m4
+/compile
+/config.h.in
+/configure
+/configure.scan
+/depcomp
+/install-sh
+/missing
+/stamp-h1
