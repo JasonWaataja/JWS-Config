@@ -3,7 +3,7 @@ A graphical configuration tool for JWS
 
 ## Synopsis
 JWS-Config is a graphical tool used to configure the command line program
-[JWS](https://github.com/JasonWaataja/JWS).  It does this by creating a
+[JWS](https://github.com/JasonWaataja/JWS). It does this by creating a
 configuration file to be used by JWS which is usually stored in ~/.jws and read
 by JWS. This was created so that using JWS would be easy and so that having many
 wallpapers would be easy to manage and sort.
@@ -27,11 +27,11 @@ command which you should be able to do from the command line.
 From the main interface, you can use the side buttons to add files and
 directories as well as move and remove them.
 
-You can view an image on its own window by double clicking on or right clicking
-and choosing "Open". From the image viewer, you can resize the image as well as
-navigate the images with the buttons on the bottom or by right clicking on the
-image. You can also go to the next image by clicking on the image and go to the
-previous image with middle click.
+You can view an image in its own window by double clicking on it or right
+clicking and choosing "Open". From the image viewer, you can resize the image as
+well as navigate the images with the buttons on the bottom or by right clicking
+on the image. You can also go to the next image by clicking on the image and go
+to the previous image with middle click.
 
 Hitting apply or "Save" writes the current configuration to ~/.jws. It writes to
 this file regardless of whether or not you opened a different file. You can save
