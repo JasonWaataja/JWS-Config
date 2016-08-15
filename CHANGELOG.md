@@ -1,7 +1,7 @@
 #Change Log
 This project adheres to Semantic Versioning.
 
-## [Unreleased]
+## [1.0.1] - 2016-08-14
 ### Fixed
 - Fix bug where randomize-order would be always be written to file instead of
 in-order if the box was checked.
