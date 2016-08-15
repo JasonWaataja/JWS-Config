@@ -1327,8 +1327,9 @@ jws_config_window_load_file (JwsConfigWindow *win,
   JwsConfigWindowPrivate *priv;
   priv = jws_config_window_get_instance_private (win);
   
+  GError *err = NULL;
   gboolean status;
-  status = jws_info_set_from_file (priv->current_info, path);
+  status = jws_info_set_from_file (priv->current_info, path, &err);
 
   if (status)
     {
@@ -1341,10 +1342,12 @@ jws_config_window_load_file (JwsConfigWindow *win,
                                        GTK_DIALOG_MODAL,
                                        GTK_MESSAGE_ERROR,
                                        GTK_BUTTONS_OK,
-                                       _("Error loading file %s."),
-                                       path);
+                                       _("Error loading file \"%s\".\n%s"),
+                                       path,
+                                       err->message);
       gtk_dialog_run (GTK_DIALOG (dialog));
       gtk_widget_destroy (dialog);
+      g_error_free (err);
     }
 }
 
@@ -1357,8 +1360,10 @@ jws_config_window_set_gui_from_info (JwsConfigWindow *win)
   gboolean rotate_image;
   rotate_image = jws_info_get_rotate_image (priv->current_info);
 
-  int rotate_seconds;
-  rotate_seconds = jws_info_get_rotate_seconds (priv->current_info);
+  JwsTimeValue *rotate_time;
+  rotate_time = jws_info_get_rotate_time (priv->current_info);
+  int rotate_seconds = jws_time_value_total_seconds (rotate_time);
+  jws_time_value_free (rotate_time);
 
   gboolean randomize_order;
   randomize_order = jws_info_get_randomize_order (priv->current_info);
@@ -1370,10 +1375,25 @@ jws_config_window_set_gui_from_info (JwsConfigWindow *win)
                                 rotate_image);
   jws_config_window_show_rotate_items (win, rotate_image);
 
-  gtk_spin_button_set_value (GTK_SPIN_BUTTON (priv->time_button),
-                             rotate_seconds);
-  /* 0 should be the index for seconds.  */
-  gtk_combo_box_set_active (GTK_COMBO_BOX (priv->time_unit_box), 0);
+  if ((rotate_seconds % (JWS_SECONDS_PER_HOUR)) == 0)
+    {
+      gtk_spin_button_set_value (GTK_SPIN_BUTTON (priv->time_button),
+                                 rotate_seconds / JWS_SECONDS_PER_HOUR);
+      gtk_combo_box_set_active (GTK_COMBO_BOX (priv->time_unit_box), 2);
+    }
+  else if ((rotate_seconds % (JWS_SECONDS_PER_MINUTE)) == 0)
+    {
+      gtk_spin_button_set_value (GTK_SPIN_BUTTON (priv->time_button),
+                                 rotate_seconds / JWS_SECONDS_PER_MINUTE);
+      gtk_combo_box_set_active (GTK_COMBO_BOX (priv->time_unit_box), 1);
+    }
+  else
+    {
+      gtk_spin_button_set_value (GTK_SPIN_BUTTON (priv->time_button),
+                                 rotate_seconds);
+      /* 0 should be the index for seconds.  */
+      gtk_combo_box_set_active (GTK_COMBO_BOX (priv->time_unit_box), 0);
+    }
 
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->randomize_button),
                                 randomize_order);
@@ -1396,30 +1416,29 @@ jws_config_window_set_info_from_gui (JwsConfigWindow *win)
   rotate_image = gtk_toggle_button_get_active
     (GTK_TOGGLE_BUTTON (priv->rotate_button));
 
-  int seconds_multiplier = 1;
-  gchar *current_text;
-  current_text = gtk_combo_box_text_get_active_text
-    (GTK_COMBO_BOX_TEXT (priv->time_unit_box));
-
-  if (g_str_equal (current_text, "Seconds"))
-    {
-      seconds_multiplier = 1;
-    }
-  else if (g_str_equal (current_text, "Minutes"))
-    {
-      seconds_multiplier = 60;
-    }
-  else if (g_str_equal (current_text, "Hours"))
-    {
-      seconds_multiplier = 60 * 60;
-    }
-
   int time_value;
   time_value = gtk_spin_button_get_value_as_int
     (GTK_SPIN_BUTTON (priv->time_button));
 
-  int rotate_seconds;
-  rotate_seconds = time_value * seconds_multiplier;
+  gchar *current_text;
+  current_text = gtk_combo_box_text_get_active_text
+    (GTK_COMBO_BOX_TEXT (priv->time_unit_box));
+
+  JwsTimeValue *rotate_time;
+  rotate_time = jws_time_value_new_for_values (0, 0, 0);
+
+  if (g_str_equal (current_text, "Seconds"))
+    {
+      rotate_time->seconds = time_value;
+    }
+  else if (g_str_equal (current_text, "Minutes"))
+    {
+      rotate_time->minutes = time_value;
+    }
+  else if (g_str_equal (current_text, "Hours"))
+    {
+      rotate_time->hours = time_value;
+    }
 
   gboolean randomize_order;
   randomize_order = gtk_toggle_button_get_active
@@ -1443,7 +1462,8 @@ jws_config_window_set_info_from_gui (JwsConfigWindow *win)
     }
   
   jws_info_set_rotate_image (priv->current_info, rotate_image);
-  jws_info_set_rotate_seconds (priv->current_info, rotate_seconds);
+  jws_info_set_rotate_time (priv->current_info, rotate_time);
+  jws_time_value_free (rotate_time);
   jws_info_set_randomize_order (priv->current_info, randomize_order);
   jws_info_set_file_list (priv->current_info, file_list);
 }
