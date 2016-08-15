@@ -476,7 +476,7 @@ jws_config_window_set_up_tree_view (JwsConfigWindow *win)
 static gchar *
 get_home_directory ()
 {
-  return g_strdup (g_getenv ("HOME"));
+  return g_strdup (g_get_home_dir ());
 }
 
 void
