@@ -11,6 +11,7 @@ before.
 ### Changed
 - Updated to use new time format with config files and also gives better
 error messages.
+- Now has a default windows size so it works better outside of i3
 
 ## [1.0] - 2016-08-12
 ### Added
