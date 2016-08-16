@@ -1590,7 +1590,7 @@ about_activated (GSimpleAction *action,
                          "copyright", "Copyright (C) 2016 Jason Waataja",
                          /*"license", license,*/
                          "license-type", GTK_LICENSE_GPL_3_0,
-                         "version", "Version 1.0.1",
+                         "version", "Version 1.1.0",
                          "logo-icon-name", "jws-config", "website",
                          "https://github.com/JasonWaataja/JWS-Config",
                          "comments", "A graphical configuration tool for JWS",

@@ -1,7 +1,7 @@
 #Change Log
 This project adheres to Semantic Versioning.
 
-## [Unreleased]
+## [1.1.0] - 2016-08-15
 ### Added
 - Finally added an icon!
 - Can now open a file from the command line to load settings from.
