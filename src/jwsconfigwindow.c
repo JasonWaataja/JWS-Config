@@ -346,8 +346,6 @@ jws_config_window_dispose (GObject *obj)
 
   g_clear_object (&priv->tree_store);
 
-
-
   G_OBJECT_CLASS (jws_config_window_parent_class)->dispose (obj);
 }
 
