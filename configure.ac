@@ -1,6 +1,6 @@
 
 
-AC_INIT([jws-config], [1.0.1], [jasonswaataja@gmail.com])
+AC_INIT([jws-config], [1.1.0], [jasonswaataja@gmail.com])
 AM_INIT_AUTOMAKE([-Wall foreign])
 AM_SILENT_RULES([yes])
 
@@ -15,5 +15,7 @@ PKG_CHECK_MODULES([GTK], [
 AC_PATH_PROG(GLIB_COMPILE_RESOURCES, glib-compile-resources)
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 pixmaps/Makefile
+                 ])
 AC_OUTPUT

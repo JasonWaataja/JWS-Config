@@ -18,6 +18,7 @@ along with JWS.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "jwsconfigapplication.h"
 #include "jwsconfigwindow.h"
 #include <gtk/gtk.h>
+#include <glib/gi18n.h>
 
 struct _JwsConfigApplication
 {
@@ -55,6 +56,34 @@ jws_config_application_activate (GApplication *app)
   g_free (config_path);
 }
 
+void
+jws_config_application_open (GApplication *app,
+                             GFile **files,
+                             gint n_files,
+                             const gchar *hint)
+{
+  if (n_files > 1)
+    {
+      g_printerr (_("Can only open one file.\n"));
+      return;
+    }
+
+  JwsConfigApplicationPrivate *priv;
+  priv = jws_config_application_get_instance_private
+    (JWS_CONFIG_APPLICATION (app));
+
+  priv->win = jws_config_window_new (JWS_CONFIG_APPLICATION (app));
+  g_object_ref_sink (priv->win);
+  gtk_window_present (GTK_WINDOW (priv->win));
+
+  gchar *config_path;
+  config_path = g_file_get_path (files[0]);
+
+  jws_config_window_load_file (priv->win, config_path);
+
+  g_free (config_path);
+}
+
 static void
 jws_config_application_init (JwsConfigApplication *app)
 {
@@ -68,6 +97,7 @@ static void
 jws_config_application_class_init (JwsConfigApplicationClass *kclass)
 {
   G_APPLICATION_CLASS (kclass)->activate = jws_config_application_activate;
+  G_APPLICATION_CLASS (kclass)->open = jws_config_application_open;
 }
 
 JwsConfigApplication *
@@ -75,6 +105,7 @@ jws_config_application_new ()
 {
   return g_object_new (JWS_TYPE_CONFIG_APPLICATION,
                        "application-id", "com.waataja.jws-config",
+                       "flags", G_APPLICATION_HANDLES_OPEN,
                        NULL);
 }
 

@@ -18,6 +18,7 @@
     <property name="title" translatable="yes">JWS-Config</property>
     <property name="default_width">1440</property>
     <property name="default_height">810</property>
+    <property name="icon_name">jws-config</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>

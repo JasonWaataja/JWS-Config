@@ -346,8 +346,6 @@ jws_config_window_dispose (GObject *obj)
 
   g_clear_object (&priv->tree_store);
 
-
-
   G_OBJECT_CLASS (jws_config_window_parent_class)->dispose (obj);
 }
 
@@ -476,7 +474,7 @@ jws_config_window_set_up_tree_view (JwsConfigWindow *win)
 static gchar *
 get_home_directory ()
 {
-  return g_strdup (g_getenv ("HOME"));
+  return g_strdup (g_get_home_dir ());
 }
 
 void
@@ -1570,28 +1568,32 @@ about_activated (GSimpleAction *action,
       NULL
     };
 
-  const gchar *license = 
-    _("This program is free software: you can redistribute it and/or modify\n"
-      "it under the terms of the GNU General Public License as published by\n"
-      "the Free Software Foundation, either version 3 of the License, or\n"
-      "(at your option) any later version.\n"
-      "\n"
-      "This program is distributed in the hope that it will be useful,\n"
-      "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-      "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-      "GNU General Public License for more details.\n"
-      "\n"
-      "You should have received a copy of the GNU General Public License\n"
-      "along with this program.  " /* I broke here to stay under 80.  */
-      "If not, see <http://www.gnu.org/licenses/>.");
+  /*const gchar *license = */
+    /*_("This program is free software: you can redistribute it and/or modify\n"*/
+      /*"it under the terms of the GNU General Public License as published by\n"*/
+      /*"the Free Software Foundation, either version 3 of the License, or\n"*/
+      /*"(at your option) any later version.\n"*/
+      /*"\n"*/
+      /*"This program is distributed in the hope that it will be useful,\n"*/
+      /*"but WITHOUT ANY WARRANTY; without even the implied warranty of\n"*/
+      /*"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"*/
+      /*"GNU General Public License for more details.\n"*/
+      /*"\n"*/
+      /*"You should have received a copy of the GNU General Public License\n"*/
+      /*"along with this program.  " [> I broke here to stay under 80.  <]*/
+      /*"If not, see <http://www.gnu.org/licenses/>.");*/
 
   gtk_show_about_dialog (GTK_WINDOW (win),
                          "program-name", "JWS-Config",
                          "title", _("About JWS-Config"),
                          "authors", authors,
                          "copyright", "Copyright (C) 2016 Jason Waataja",
-                         "license", license,
-                         "version", "Version 1.0.1",
+                         /*"license", license,*/
+                         "license-type", GTK_LICENSE_GPL_3_0,
+                         "version", "Version 1.1.0",
+                         "logo-icon-name", "jws-config", "website",
+                         "https://github.com/JasonWaataja/JWS-Config",
+                         "comments", "A graphical configuration tool for JWS",
                          NULL);
 
 }
