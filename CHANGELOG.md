@@ -1,6 +1,13 @@
 #Change Log
 This project adheres to Semantic Versioning.
 
+## [Unreleased]
+### Added
+- Finally added an icon!
+
+### Changed
+- Improve the about dialog.
+
 ## [1.0.1] - 2016-08-14
 ### Fixed
 - Fix bug where randomize-order would be always be written to file instead of

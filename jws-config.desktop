@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0.1
+Type=Application
+Name=JWS-Config
+Exec=jws-config
+Comment=A graphical configuration tool for JWS
+Icon=jws-config
+Terminal=false
+Categories=Utility;GTK;

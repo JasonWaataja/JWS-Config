@@ -15,5 +15,7 @@ PKG_CHECK_MODULES([GTK], [
 AC_PATH_PROG(GLIB_COMPILE_RESOURCES, glib-compile-resources)
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 pixmaps/Makefile
+                 ])
 AC_OUTPUT
