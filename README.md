@@ -20,9 +20,8 @@ autotools project. Navigate into the directory containing JWS-Config and run
 for the last one.
 
 ## Usage
-As of yet, there is no desktop entry as I am currently waiting on an icon. In
-the meantime, create your own and launch the program with the `jws-config`
-command which you should be able to do from the command line.
+You can launch the program with the `jws-config` command. There should also be a
+desktop entry in your system that you can use.
 
 From the main interface, you can use the side buttons to add files and
 directories as well as move and remove them.

@@ -4,6 +4,7 @@ This project adheres to Semantic Versioning.
 ## [Unreleased]
 ### Added
 - Finally added an icon!
+- Can now open a file from the command line to load settings from.
 
 ### Changed
 - Improve the about dialog.
