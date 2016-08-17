@@ -39,6 +39,14 @@ jws_config_window_get_type (void);
 JwsConfigWindow *
 jws_config_window_new (JwsConfigApplication *app);
 
+/* Free return value with g_free ().  */
+gchar *
+jws_config_window_get_current_file (JwsConfigWindow *win);
+
+void
+jws_config_window_set_current_file (JwsConfigWindow *win,
+                                    const gchar *file);
+
 gboolean
 jws_config_window_get_should_exit_thread (JwsConfigWindow *win);
 

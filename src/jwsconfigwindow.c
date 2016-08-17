@@ -66,6 +66,7 @@ struct _JwsConfigWindowPrivate
   GAsyncQueue *preview_queue;
 
   JwsInfo *current_info;
+  gchar *current_file;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (JwsConfigWindow, jws_config_window,
@@ -235,6 +236,7 @@ jws_config_window_init (JwsConfigWindow *self)
                                        self);
 
   priv->current_info = jws_info_new ();
+  priv->current_file = NULL;
 
   g_signal_connect_swapped (priv->rotate_button, "toggled",
                             G_CALLBACK (on_rotate_button_toggled),
@@ -354,6 +356,8 @@ jws_config_window_finalize (GObject *obj)
 {
   JwsConfigWindowPrivate *priv;
   priv = jws_config_window_get_instance_private (JWS_CONFIG_WINDOW (obj));
+
+  g_free (priv->current_file);
   
   G_OBJECT_CLASS (jws_config_window_parent_class)->finalize (obj);
 }
@@ -1496,7 +1500,8 @@ open_activated (GSimpleAction *action,
 
   if (path)
     {
-      jws_config_window_load_file (JWS_CONFIG_WINDOW (win), path);
+      /*jws_config_window_load_file (JWS_CONFIG_WINDOW (win), path);*/
+      jws_config_window_set_current_file (JWS_CONFIG_WINDOW (win), path);
     }
   g_free (path);
 
@@ -1508,7 +1513,14 @@ save_activated (GSimpleAction *action,
                 GVariant *parameter,
                 gpointer win)
 {
-  jws_config_window_write_to_default_config_file (JWS_CONFIG_WINDOW (win));
+  /*jws_config_window_write_to_default_config_file (JWS_CONFIG_WINDOW (win));*/
+  gchar *path = jws_config_window_get_current_file (JWS_CONFIG_WINDOW (win));
+  if (path)
+    {
+      jws_config_window_save_to_file (JWS_CONFIG_WINDOW (win),
+                                      path);
+    }
+  g_free (path);
 }
 
 static void
@@ -2190,4 +2202,30 @@ jws_get_previous_tree_path_item (GtkTreeModel *model, GtkTreePath *tree_path)
     }
 
   return current_path;
+}
+
+gchar *
+jws_config_window_get_current_file (JwsConfigWindow *win)
+{
+  g_assert (win);
+
+  JwsConfigWindowPrivate *priv;
+  priv = jws_config_window_get_instance_private (win);
+  
+  return g_strdup (priv->current_file);
+}
+
+void
+jws_config_window_set_current_file (JwsConfigWindow *win,
+                                    const gchar *file)
+{
+  g_assert (win);
+
+  JwsConfigWindowPrivate *priv;
+  priv = jws_config_window_get_instance_private (win);
+  
+  g_free (priv->current_file);
+  priv->current_file = g_strdup (file);
+
+  jws_config_window_load_file (win, priv->current_file);
 }

@@ -52,7 +52,8 @@ jws_config_application_activate (GApplication *app)
 
   gchar *config_path;
   config_path = jws_get_default_config_file ();
-  jws_config_window_load_file (priv->win, config_path);
+  /*jws_config_window_load_file (priv->win, config_path);*/
+  jws_config_window_set_current_file (priv->win, config_path);
   g_free (config_path);
 }
 
@@ -79,7 +80,8 @@ jws_config_application_open (GApplication *app,
   gchar *config_path;
   config_path = g_file_get_path (files[0]);
 
-  jws_config_window_load_file (priv->win, config_path);
+  /*jws_config_window_load_file (priv->win, config_path);*/
+  jws_config_window_set_current_file (priv->win, config_path);
 
   g_free (config_path);
 }
