@@ -32,6 +32,4 @@ well as navigate the images with the buttons on the bottom or by right clicking
 on the image. You can also go to the next image by clicking on the image and go
 to the previous image with middle click.
 
-Hitting apply or "Save" writes the current configuration to ~/.jws. It writes to
-this file regardless of whether or not you opened a different file. You can save
-to an arbitrary file using "Save as" from the File menu.
+You can edit a file by running `jws-config filename`.

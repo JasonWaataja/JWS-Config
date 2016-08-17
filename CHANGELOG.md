@@ -1,6 +1,11 @@
 #Change Log
 This project adheres to Semantic Versioning.
 
+## [Unreleased]
+### Changed
+- Store a reference to the current file so that opening and saving set that file
+instead of always writing to ~/.jws.
+
 ## [1.1.0] - 2016-08-15
 ### Added
 - Finally added an icon!

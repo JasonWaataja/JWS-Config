@@ -142,4 +142,7 @@ jws_info_write_to_file (JwsInfo *info, const gchar *path);
 gboolean
 jws_write_line (GIOChannel *channel, const gchar *message);
 
+void
+jws_info_set_defaults (JwsInfo *info);
+
 #endif /* JWSINFO_H */

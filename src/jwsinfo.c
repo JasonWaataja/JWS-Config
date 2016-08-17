@@ -83,7 +83,7 @@ jws_info_init (JwsInfo *self)
   priv = jws_info_get_instance_private (self);
 
   priv->rotate_image = TRUE;
-  priv->rotate_time = jws_time_value_new_for_seconds (60);
+  priv->rotate_time = jws_time_value_new_for_values (0, 1, 0);
   priv->randomize_order = TRUE;
 
   priv->file_list = NULL;
@@ -274,6 +274,9 @@ gboolean
 jws_info_set_from_file (JwsInfo *info, const gchar *path, GError **err)
 {
   g_assert (info);
+
+  jws_info_set_defaults (info);
+
   JwsInfoPrivate *priv;
   priv = jws_info_get_instance_private (info);
 
@@ -828,4 +831,21 @@ jws_write_line (GIOChannel *channel, const gchar *message)
                                      NULL);
   g_free (new_message);
   return (status == G_IO_STATUS_NORMAL);
+}
+
+void
+jws_info_set_defaults (JwsInfo *info)
+{
+  g_assert (info);
+
+  JwsInfoPrivate *priv;
+  priv = jws_info_get_instance_private (info);
+  
+  priv->rotate_image = TRUE;
+  priv->randomize_order = FALSE;
+  jws_time_value_free (priv->rotate_time);
+  priv->rotate_time = jws_time_value_new_for_values (0, 1, 0);
+
+  g_list_free_full (priv->file_list, (GDestroyNotify) g_free);
+  priv->file_list = NULL;
 }
