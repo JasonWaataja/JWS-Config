@@ -6,6 +6,9 @@ This project adheres to Semantic Versioning.
 - Store a reference to the current file so that opening and saving set that file
 instead of always writing to ~/.jws.
 
+### Fixed
+- Now sorts subdirectories alphabetically.
+
 ## [1.1.0] - 2016-08-15
 ### Added
 - Finally added an icon!
