@@ -429,7 +429,7 @@ jws_info_set_from_file (JwsInfo *info, const gchar *path, GError **err)
           g_regex_unref (regex);
           g_match_info_free (match_info);
         }
-      else if (g_str_has_prefix (line, "rotate-image"))
+      else if (g_str_has_prefix (line, "randomize-order"))
         {
           priv->randomize_order = TRUE;
         }
