@@ -644,20 +644,36 @@ jws_config_window_add_file_for_iter_recurse (JwsConfigWindow *win,
                                                 NULL,
                                                 NULL);
 
+          GList *dirent_list = NULL;
+
           while (iter_err && child_file != NULL)
             {
               gchar *child_path;
               child_path = g_file_get_path (child_file);
-              jws_config_window_add_file_for_iter_recurse (win,
-                                                           child_path,
-                                                           &iter);
-              g_free (child_path);
+              dirent_list = g_list_append (dirent_list, child_path);
+              /*jws_config_window_add_file_for_iter_recurse (win,*/
+                                                           /*child_path,*/
+                                                           /*&iter);*/
+              /*g_free (child_path);*/
               iter_err = g_file_enumerator_iterate (enumerator,
                                                     NULL,
                                                     &child_file,
                                                     NULL,
                                                     NULL);
             }
+
+          dirent_list = g_list_sort (dirent_list, (GCompareFunc) g_strcmp0);
+
+          for (GList *list_iter = dirent_list;
+               list_iter;
+               list_iter = g_list_next (list_iter))
+            {
+              jws_config_window_add_file_for_iter_recurse (win,
+                                                           list_iter->data,
+                                                           &iter);
+            }
+
+          g_list_free_full (dirent_list, (GDestroyNotify) g_free);
         }
       g_object_unref (enumerator);
     }
