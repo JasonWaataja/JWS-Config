@@ -9,6 +9,11 @@ instead of always writing to ~/.jws.
 ### Fixed
 - Now sorts subdirectories alphabetically.
 
+### Added
+- Add new mode feature. Check the JWS documentation for more info. It is now
+able to use feh's various modes for setting the wallpaper which will make it
+display differently and now has a gui tool to select it.
+
 ## [1.1.0] - 2016-08-15
 ### Added
 - Finally added an icon!
