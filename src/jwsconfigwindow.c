@@ -42,6 +42,7 @@ struct _JwsConfigWindowPrivate
   GtkWidget *rotate_button;
   GtkWidget *time_button;
   GtkWidget *time_unit_box;
+  GtkWidget *mode_box;
   GtkWidget *randomize_button;
   GtkWidget *apply_button;
   GtkWidget *add_button;
@@ -294,6 +295,9 @@ jws_config_window_class_init (JwsConfigWindowClass *kclass)
   gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (kclass),
                                                 JwsConfigWindow,
                                                 time_unit_box);
+  gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (kclass),
+                                                JwsConfigWindow,
+                                                mode_box);
   gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (kclass),
                                                 JwsConfigWindow,
                                                 randomize_button);
@@ -1413,6 +1417,33 @@ jws_config_window_set_gui_from_info (JwsConfigWindow *win)
       gtk_combo_box_set_active (GTK_COMBO_BOX (priv->time_unit_box), 0);
     }
 
+  JwsWallpaperMode mode;
+  mode = jws_info_get_mode (priv->current_info);
+  g_print ("mode: %i\n", mode);
+  GtkComboBox *mode_box = GTK_COMBO_BOX (priv->mode_box);
+
+  switch (mode)
+	{
+	case JWS_WALLPAPER_MODE_FILL:
+	  gtk_combo_box_set_active (mode_box, 0);
+	  break;
+	case JWS_WALLPAPER_MODE_CENTER:
+	  gtk_combo_box_set_active (mode_box, 1);
+	  break;
+	case JWS_WALLPAPER_MODE_MAX:
+	  gtk_combo_box_set_active (mode_box, 2);
+	  break;
+	case JWS_WALLPAPER_MODE_SCALE:
+	  gtk_combo_box_set_active (mode_box, 3);
+	  break;
+	case JWS_WALLPAPER_MODE_TILE:
+	  gtk_combo_box_set_active (mode_box, 4);
+	  break;
+	default:
+	  gtk_combo_box_set_active (mode_box, 0);
+	  break;
+	}
+
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->randomize_button),
                                 randomize_order);
 
@@ -1458,6 +1489,9 @@ jws_config_window_set_info_from_gui (JwsConfigWindow *win)
       rotate_time->hours = time_value;
     }
 
+  JwsWallpaperMode mode;
+  mode = jws_config_window_get_mode_from_box (win);
+
   gboolean randomize_order;
   randomize_order = gtk_toggle_button_get_active
     (GTK_TOGGLE_BUTTON (priv->randomize_button));
@@ -1482,6 +1516,7 @@ jws_config_window_set_info_from_gui (JwsConfigWindow *win)
   jws_info_set_rotate_image (priv->current_info, rotate_image);
   jws_info_set_rotate_time (priv->current_info, rotate_time);
   jws_time_value_free (rotate_time);
+  jws_info_set_mode (priv->current_info, mode);
   jws_info_set_randomize_order (priv->current_info, randomize_order);
   jws_info_set_file_list (priv->current_info, file_list);
 }
@@ -2052,6 +2087,8 @@ jws_config_window_set_wallpaper_for_row (JwsConfigWindow *win,
   if (!gtk_tree_row_reference_valid (row_ref))
     return;
 
+  g_assert (win);
+
   JwsConfigWindowPrivate *priv;
   priv = jws_config_window_get_instance_private (win);
   
@@ -2069,7 +2106,8 @@ jws_config_window_set_wallpaper_for_row (JwsConfigWindow *win,
                       PATH_COLUMN, &path,
                       -1);
 
-  jws_set_wallpaper_from_file (path);
+  jws_set_wallpaper_from_file (path,
+							   jws_config_window_get_mode_from_box (win));
 
   g_free (path);
 }
@@ -2244,4 +2282,49 @@ jws_config_window_set_current_file (JwsConfigWindow *win,
   priv->current_file = g_strdup (file);
 
   jws_config_window_load_file (win, priv->current_file);
+}
+
+JwsWallpaperMode
+jws_config_window_get_mode_from_box (JwsConfigWindow *win)
+{
+  g_assert (win);
+
+  JwsConfigWindowPrivate *priv;
+  priv = jws_config_window_get_instance_private (win);
+  
+
+  gchar *mode_text;
+  mode_text = gtk_combo_box_text_get_active_text
+	(GTK_COMBO_BOX_TEXT (priv->mode_box));
+
+  JwsWallpaperMode mode;
+
+  if (g_str_equal (mode_text, "Fill"))
+	{
+	  mode = JWS_WALLPAPER_MODE_FILL;
+	}
+  else if (g_str_equal (mode_text, "Center"))
+	{
+	  mode = JWS_WALLPAPER_MODE_CENTER;
+	}
+  else if (g_str_equal (mode_text, "Max"))
+	{
+	  mode = JWS_WALLPAPER_MODE_MAX;
+	}
+  else if (g_str_equal (mode_text, "Scale"))
+	{
+	  mode = JWS_WALLPAPER_MODE_SCALE;
+	}
+  else if (g_str_equal (mode_text, "Tile"))
+	{
+	  mode = JWS_WALLPAPER_MODE_TILE;
+	}
+  else
+	{
+	  mode = JWS_DEFAULT_WALLPAPER_MODE;
+	}
+
+  g_free (mode_text);
+
+  return mode;
 }
