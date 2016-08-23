@@ -26,6 +26,10 @@ desktop entry in your system that you can use.
 From the main interface, you can use the side buttons to add files and
 directories as well as move and remove them.
 
+For a summary of what each of the options do, consult the documentation for JWS.
+This includes information about each option, what it does, and how to use it in
+the configuration file.
+
 You can view an image in its own window by double clicking on it or right
 clicking and choosing "Open". From the image viewer, you can resize the image as
 well as navigate the images with the buttons on the bottom or by right clicking
