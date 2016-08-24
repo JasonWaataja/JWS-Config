@@ -1419,7 +1419,6 @@ jws_config_window_set_gui_from_info (JwsConfigWindow *win)
 
   JwsWallpaperMode mode;
   mode = jws_info_get_mode (priv->current_info);
-  g_print ("mode: %i\n", mode);
   GtkComboBox *mode_box = GTK_COMBO_BOX (priv->mode_box);
 
   switch (mode)
