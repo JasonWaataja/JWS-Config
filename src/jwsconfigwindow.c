@@ -42,6 +42,7 @@ struct _JwsConfigWindowPrivate
   GtkWidget *rotate_button;
   GtkWidget *time_button;
   GtkWidget *time_unit_box;
+  GtkWidget *mode_box;
   GtkWidget *randomize_button;
   GtkWidget *apply_button;
   GtkWidget *add_button;
@@ -66,6 +67,7 @@ struct _JwsConfigWindowPrivate
   GAsyncQueue *preview_queue;
 
   JwsInfo *current_info;
+  gchar *current_file;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (JwsConfigWindow, jws_config_window,
@@ -235,6 +237,7 @@ jws_config_window_init (JwsConfigWindow *self)
                                        self);
 
   priv->current_info = jws_info_new ();
+  priv->current_file = NULL;
 
   g_signal_connect_swapped (priv->rotate_button, "toggled",
                             G_CALLBACK (on_rotate_button_toggled),
@@ -292,6 +295,9 @@ jws_config_window_class_init (JwsConfigWindowClass *kclass)
   gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (kclass),
                                                 JwsConfigWindow,
                                                 time_unit_box);
+  gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (kclass),
+                                                JwsConfigWindow,
+                                                mode_box);
   gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (kclass),
                                                 JwsConfigWindow,
                                                 randomize_button);
@@ -354,6 +360,8 @@ jws_config_window_finalize (GObject *obj)
 {
   JwsConfigWindowPrivate *priv;
   priv = jws_config_window_get_instance_private (JWS_CONFIG_WINDOW (obj));
+
+  g_free (priv->current_file);
   
   G_OBJECT_CLASS (jws_config_window_parent_class)->finalize (obj);
 }
@@ -584,7 +592,7 @@ jws_config_window_add_file_for_iter_recurse (JwsConfigWindow *win,
   gchar *file_path;
   file_path = g_file_get_path (file);
 
-  gchar *type_string;
+  gchar *type_string = NULL;
 
   GtkTreeIter iter;
   gtk_tree_store_append (priv->tree_store, &iter, parent_iter);
@@ -640,20 +648,36 @@ jws_config_window_add_file_for_iter_recurse (JwsConfigWindow *win,
                                                 NULL,
                                                 NULL);
 
+          GList *dirent_list = NULL;
+
           while (iter_err && child_file != NULL)
             {
               gchar *child_path;
               child_path = g_file_get_path (child_file);
-              jws_config_window_add_file_for_iter_recurse (win,
-                                                           child_path,
-                                                           &iter);
-              g_free (child_path);
+              dirent_list = g_list_append (dirent_list, child_path);
+              /*jws_config_window_add_file_for_iter_recurse (win,*/
+                                                           /*child_path,*/
+                                                           /*&iter);*/
+              /*g_free (child_path);*/
               iter_err = g_file_enumerator_iterate (enumerator,
                                                     NULL,
                                                     &child_file,
                                                     NULL,
                                                     NULL);
             }
+
+          dirent_list = g_list_sort (dirent_list, (GCompareFunc) g_strcmp0);
+
+          for (GList *list_iter = dirent_list;
+               list_iter;
+               list_iter = g_list_next (list_iter))
+            {
+              jws_config_window_add_file_for_iter_recurse (win,
+                                                           list_iter->data,
+                                                           &iter);
+            }
+
+          g_list_free_full (dirent_list, (GDestroyNotify) g_free);
         }
       g_object_unref (enumerator);
     }
@@ -1393,6 +1417,32 @@ jws_config_window_set_gui_from_info (JwsConfigWindow *win)
       gtk_combo_box_set_active (GTK_COMBO_BOX (priv->time_unit_box), 0);
     }
 
+  JwsWallpaperMode mode;
+  mode = jws_info_get_mode (priv->current_info);
+  GtkComboBox *mode_box = GTK_COMBO_BOX (priv->mode_box);
+
+  switch (mode)
+	{
+	case JWS_WALLPAPER_MODE_FILL:
+	  gtk_combo_box_set_active (mode_box, 0);
+	  break;
+	case JWS_WALLPAPER_MODE_CENTER:
+	  gtk_combo_box_set_active (mode_box, 1);
+	  break;
+	case JWS_WALLPAPER_MODE_MAX:
+	  gtk_combo_box_set_active (mode_box, 2);
+	  break;
+	case JWS_WALLPAPER_MODE_SCALE:
+	  gtk_combo_box_set_active (mode_box, 3);
+	  break;
+	case JWS_WALLPAPER_MODE_TILE:
+	  gtk_combo_box_set_active (mode_box, 4);
+	  break;
+	default:
+	  gtk_combo_box_set_active (mode_box, 0);
+	  break;
+	}
+
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->randomize_button),
                                 randomize_order);
 
@@ -1438,6 +1488,9 @@ jws_config_window_set_info_from_gui (JwsConfigWindow *win)
       rotate_time->hours = time_value;
     }
 
+  JwsWallpaperMode mode;
+  mode = jws_config_window_get_mode_from_box (win);
+
   gboolean randomize_order;
   randomize_order = gtk_toggle_button_get_active
     (GTK_TOGGLE_BUTTON (priv->randomize_button));
@@ -1462,6 +1515,7 @@ jws_config_window_set_info_from_gui (JwsConfigWindow *win)
   jws_info_set_rotate_image (priv->current_info, rotate_image);
   jws_info_set_rotate_time (priv->current_info, rotate_time);
   jws_time_value_free (rotate_time);
+  jws_info_set_mode (priv->current_info, mode);
   jws_info_set_randomize_order (priv->current_info, randomize_order);
   jws_info_set_file_list (priv->current_info, file_list);
 }
@@ -1496,7 +1550,8 @@ open_activated (GSimpleAction *action,
 
   if (path)
     {
-      jws_config_window_load_file (JWS_CONFIG_WINDOW (win), path);
+      /*jws_config_window_load_file (JWS_CONFIG_WINDOW (win), path);*/
+      jws_config_window_set_current_file (JWS_CONFIG_WINDOW (win), path);
     }
   g_free (path);
 
@@ -1508,7 +1563,14 @@ save_activated (GSimpleAction *action,
                 GVariant *parameter,
                 gpointer win)
 {
-  jws_config_window_write_to_default_config_file (JWS_CONFIG_WINDOW (win));
+  /*jws_config_window_write_to_default_config_file (JWS_CONFIG_WINDOW (win));*/
+  gchar *path = jws_config_window_get_current_file (JWS_CONFIG_WINDOW (win));
+  if (path)
+    {
+      jws_config_window_save_to_file (JWS_CONFIG_WINDOW (win),
+                                      path);
+    }
+  g_free (path);
 }
 
 static void
@@ -1590,7 +1652,7 @@ about_activated (GSimpleAction *action,
                          "copyright", "Copyright (C) 2016 Jason Waataja",
                          /*"license", license,*/
                          "license-type", GTK_LICENSE_GPL_3_0,
-                         "version", "Version 1.1.0",
+                         "version", "Version 1.2.0",
                          "logo-icon-name", "jws-config", "website",
                          "https://github.com/JasonWaataja/JWS-Config",
                          "comments", "A graphical configuration tool for JWS",
@@ -2024,6 +2086,8 @@ jws_config_window_set_wallpaper_for_row (JwsConfigWindow *win,
   if (!gtk_tree_row_reference_valid (row_ref))
     return;
 
+  g_assert (win);
+
   JwsConfigWindowPrivate *priv;
   priv = jws_config_window_get_instance_private (win);
   
@@ -2041,7 +2105,8 @@ jws_config_window_set_wallpaper_for_row (JwsConfigWindow *win,
                       PATH_COLUMN, &path,
                       -1);
 
-  jws_set_wallpaper_from_file (path);
+  jws_set_wallpaper_from_file (path,
+							   jws_config_window_get_mode_from_box (win));
 
   g_free (path);
 }
@@ -2190,4 +2255,75 @@ jws_get_previous_tree_path_item (GtkTreeModel *model, GtkTreePath *tree_path)
     }
 
   return current_path;
+}
+
+gchar *
+jws_config_window_get_current_file (JwsConfigWindow *win)
+{
+  g_assert (win);
+
+  JwsConfigWindowPrivate *priv;
+  priv = jws_config_window_get_instance_private (win);
+  
+  return g_strdup (priv->current_file);
+}
+
+void
+jws_config_window_set_current_file (JwsConfigWindow *win,
+                                    const gchar *file)
+{
+  g_assert (win);
+
+  JwsConfigWindowPrivate *priv;
+  priv = jws_config_window_get_instance_private (win);
+  
+  g_free (priv->current_file);
+  priv->current_file = g_strdup (file);
+
+  jws_config_window_load_file (win, priv->current_file);
+}
+
+JwsWallpaperMode
+jws_config_window_get_mode_from_box (JwsConfigWindow *win)
+{
+  g_assert (win);
+
+  JwsConfigWindowPrivate *priv;
+  priv = jws_config_window_get_instance_private (win);
+  
+
+  gchar *mode_text;
+  mode_text = gtk_combo_box_text_get_active_text
+	(GTK_COMBO_BOX_TEXT (priv->mode_box));
+
+  JwsWallpaperMode mode;
+
+  if (g_str_equal (mode_text, "Fill"))
+	{
+	  mode = JWS_WALLPAPER_MODE_FILL;
+	}
+  else if (g_str_equal (mode_text, "Center"))
+	{
+	  mode = JWS_WALLPAPER_MODE_CENTER;
+	}
+  else if (g_str_equal (mode_text, "Max"))
+	{
+	  mode = JWS_WALLPAPER_MODE_MAX;
+	}
+  else if (g_str_equal (mode_text, "Scale"))
+	{
+	  mode = JWS_WALLPAPER_MODE_SCALE;
+	}
+  else if (g_str_equal (mode_text, "Tile"))
+	{
+	  mode = JWS_WALLPAPER_MODE_TILE;
+	}
+  else
+	{
+	  mode = JWS_DEFAULT_WALLPAPER_MODE;
+	}
+
+  g_free (mode_text);
+
+  return mode;
 }

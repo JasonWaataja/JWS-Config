@@ -1,6 +1,6 @@
 
 
-AC_INIT([jws-config], [1.1.0], [jasonswaataja@gmail.com])
+AC_INIT([jws-config], [1.2.0], [jasonswaataja@gmail.com])
 AM_INIT_AUTOMAKE([-Wall foreign])
 AM_SILENT_RULES([yes])
 

@@ -1,6 +1,20 @@
 #Change Log
 This project adheres to Semantic Versioning.
 
+## [1.2.0] - 2016-8-23
+### Changed
+- Store a reference to the current file so that opening and saving set that file
+instead of always writing to ~/.jws.
+
+### Fixed
+- Now sorts subdirectories alphabetically.
+- Fix crash on invalid path.
+
+### Added
+- Add new mode feature. Check the JWS documentation for more info. It is now
+able to use feh's various modes for setting the wallpaper which will make it
+display differently and now has a gui tool to select it.
+
 ## [1.1.0] - 2016-08-15
 ### Added
 - Finally added an icon!

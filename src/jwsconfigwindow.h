@@ -22,6 +22,7 @@ along with JWS.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <gtk/gtk.h>
 #include "jwsconfigapplication.h"
+#include "jwsinfo.h"
 
 #define JWS_TYPE_CONFIG_WINDOW (jws_config_window_get_type ())
 #define JWS_CONFIG_WINDOW(obj) \
@@ -38,6 +39,14 @@ jws_config_window_get_type (void);
 
 JwsConfigWindow *
 jws_config_window_new (JwsConfigApplication *app);
+
+/* Free return value with g_free ().  */
+gchar *
+jws_config_window_get_current_file (JwsConfigWindow *win);
+
+void
+jws_config_window_set_current_file (JwsConfigWindow *win,
+                                    const gchar *file);
 
 gboolean
 jws_config_window_get_should_exit_thread (JwsConfigWindow *win);
@@ -138,5 +147,8 @@ jws_get_next_tree_path_item (GtkTreeModel *model, GtkTreePath *tree_path);
 
 GtkTreePath *
 jws_get_previous_tree_path_item (GtkTreeModel *model, GtkTreePath *tree_path);
+
+JwsWallpaperMode
+jws_config_window_get_mode_from_box (JwsConfigWindow *win);
 
 #endif /* JWSCONFIGWINDOW_H */
