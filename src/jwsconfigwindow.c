@@ -592,7 +592,7 @@ jws_config_window_add_file_for_iter_recurse (JwsConfigWindow *win,
   gchar *file_path;
   file_path = g_file_get_path (file);
 
-  gchar *type_string;
+  gchar *type_string = NULL;
 
   GtkTreeIter iter;
   gtk_tree_store_append (priv->tree_store, &iter, parent_iter);
