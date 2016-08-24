@@ -1,13 +1,14 @@
 #Change Log
 This project adheres to Semantic Versioning.
 
-## [Unreleased]
+## [1.2.0] - 2016-8-23
 ### Changed
 - Store a reference to the current file so that opening and saving set that file
 instead of always writing to ~/.jws.
 
 ### Fixed
 - Now sorts subdirectories alphabetically.
+- Fix crash on invalid path.
 
 ### Added
 - Add new mode feature. Check the JWS documentation for more info. It is now
