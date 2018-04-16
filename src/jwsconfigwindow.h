@@ -88,6 +88,11 @@ jws_create_scaled_pixbuf (GdkPixbuf *src,
                           int width,
                           int height);
 
+/* Creates and returns a pixbuf with width and height. It has an alpha channel
+ * and its data is entirely zeroed. */
+GdkPixbuf *
+jws_create_empty_pixbuf (int width, int height);
+
 /* Free with g_free ().  */
 gchar *
 jws_config_window_get_path_for_row (JwsConfigWindow *win,

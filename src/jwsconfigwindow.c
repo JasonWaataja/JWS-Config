@@ -19,6 +19,8 @@ along with JWS.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include "jwsconfigwindow.h"
 
+#include <stdlib.h>
+
 #include <glib/gi18n.h>
 
 #include "jwsconfigimageviewer.h"
@@ -599,13 +601,31 @@ jws_config_window_add_file_for_iter_recurse (JwsConfigWindow *win,
 
   if (file_type == G_FILE_TYPE_REGULAR)
     {
-      type_string = jws_get_type_string (FALSE);
+      GError *error = NULL;
+      GtkIconTheme *icon_theme;
+      GdkPixbuf *missing_image;
 
+      icon_theme = gtk_icon_theme_get_default ();
+      missing_image = gtk_icon_theme_load_icon (icon_theme,
+                                                "image-missing",
+                                                JWS_CONFIG_WINDOW_PREVIEW_HEIGHT,
+                                                0,
+                                                &error);
+      if (!missing_image)
+        {
+          g_warning("Couldn't load missing image icon.");
+          g_free(error);
+          missing_image =
+            jws_create_empty_pixbuf(JWS_CONFIG_WINDOW_PREVIEW_HEIGHT,
+                                    JWS_CONFIG_WINDOW_PREVIEW_HEIGHT);
+        }
+
+      type_string = jws_get_type_string (FALSE);
       gtk_tree_store_set (priv->tree_store, &iter,
                           PATH_COLUMN, file_path,
                           NAME_COLUMN, basename,
                           IS_DIRECTORY_COLUMN, FALSE,
-                          PREVIEW_COLUMN, NULL,
+                          PREVIEW_COLUMN, missing_image,
                           -1);
 
       GtkTreePath *as_path;
@@ -621,13 +641,15 @@ jws_config_window_add_file_for_iter_recurse (JwsConfigWindow *win,
   else if (file_type == G_FILE_TYPE_DIRECTORY)
     {
       type_string = jws_get_type_string (TRUE);
-
+      GdkPixbuf *empty_preview =
+        jws_create_empty_pixbuf(JWS_CONFIG_WINDOW_PREVIEW_HEIGHT,
+                                JWS_CONFIG_WINDOW_PREVIEW_HEIGHT);
 
       gtk_tree_store_set (priv->tree_store, &iter,
                           PATH_COLUMN, file_path,
                           NAME_COLUMN, basename,
                           IS_DIRECTORY_COLUMN, TRUE,
-                          PREVIEW_COLUMN, NULL,
+                          PREVIEW_COLUMN, empty_preview,
                           -1);
 
       GFileEnumerator *enumerator;
@@ -781,7 +803,7 @@ jws_create_scaled_pixbuf (GdkPixbuf *src,
   int src_width;
   int src_height;
 
-  GdkPixbuf *dest = NULL;;
+  GdkPixbuf *dest = NULL;
 
   if (src)
     {
@@ -814,6 +836,17 @@ jws_create_scaled_pixbuf (GdkPixbuf *src,
     }
 
   return dest;
+}
+
+GdkPixbuf *
+jws_create_empty_pixbuf (int width, int height)
+{
+  GdkPixbuf *result = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, width,
+                                      height);
+  guchar *pixel_data = gdk_pixbuf_get_pixels (result);
+  gsize length = gdk_pixbuf_get_byte_length(result);
+  memset (pixel_data, 0, length);
+  return result;
 }
 
 gboolean
